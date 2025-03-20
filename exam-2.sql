@@ -48,17 +48,59 @@ INSERT INTO livres (titre, auteur, année_publication, disponible) VALUES
 
 INSERT INTO emprunts(id_adhérent, isbn, date_emprunt, date_retour) VALUES
     ((SELECT id_adhérent FROM adhérents WHERE adhérents.nom = 'Jane Austen'),
+    (SELECT isbn FROM livres WHERE livres.titre = 'Orgueil et Préjugés'),
+    CURRENT_DATE(), NULL),
+    ((SELECT id_adhérent FROM adhérents WHERE adhérents.nom = 'Charles Dickens'),
     (SELECT isbn FROM livres WHERE livres.titre = 'David Copperfield'),
-    CURRENT_DATE(), CURRENT_DATE() + 30),
+    CURRENT_DATE(), NULL),
+    ((SELECT id_adhérent FROM adhérents WHERE adhérents.nom = 'Jules Vernes'),
+    (SELECT isbn FROM livres WHERE livres.titre = 'Vingt mille lieues sous les mers'),
+    CURRENT_DATE(), NULL),
+    ((SELECT id_adhérent FROM adhérents WHERE adhérents.nom = 'Mary Shelley'),
+    (SELECT isbn FROM livres WHERE livres.titre = 'Frankenstein'),
+    CURRENT_DATE(), NULL);
+
+INSERT INTO emprunts(id_adhérent, isbn, date_emprunt, date_retour) VALUES
+    ((SELECT id_adhérent FROM adhérents WHERE adhérents.nom = 'Jane Austen'),
+    (SELECT isbn FROM livres WHERE livres.titre = 'David Copperfield'),
+    CURRENT_DATE()+1, NULL),
     ((SELECT id_adhérent FROM adhérents WHERE adhérents.nom = 'Charles Dickens'),
     (SELECT isbn FROM livres WHERE livres.titre = 'Vingt mille lieues sous les mers'),
-    CURRENT_DATE(), CURRENT_DATE() + 30),
+    CURRENT_DATE()+1, NULL),
     ((SELECT id_adhérent FROM adhérents WHERE adhérents.nom = 'Jules Vernes'),
     (SELECT isbn FROM livres WHERE livres.titre = 'Frankenstein'),
-    CURRENT_DATE(), CURRENT_DATE() + 30),
+    CURRENT_DATE()+1, NULL),
     ((SELECT id_adhérent FROM adhérents WHERE adhérents.nom = 'Mary Shelley'),
     (SELECT isbn FROM livres WHERE livres.titre = 'Orgueil et Préjugés'),
-    CURRENT_DATE(), CURRENT_DATE() + 30);
+    CURRENT_DATE()+1, NULL);
+
+INSERT INTO emprunts(id_adhérent, isbn, date_emprunt, date_retour) VALUES
+    ((SELECT id_adhérent FROM adhérents WHERE adhérents.nom = 'Jane Austen'),
+    (SELECT isbn FROM livres WHERE livres.titre = 'Vingt mille lieues sous les mers'),
+    CURRENT_DATE()+2, NULL),
+    ((SELECT id_adhérent FROM adhérents WHERE adhérents.nom = 'Charles Dickens'),
+    (SELECT isbn FROM livres WHERE livres.titre = 'Frankenstein'),
+    CURRENT_DATE()+2, NULL),
+    ((SELECT id_adhérent FROM adhérents WHERE adhérents.nom = 'Jules Vernes'),
+    (SELECT isbn FROM livres WHERE livres.titre = 'Orgueil et Préjugés'),
+    CURRENT_DATE()+2, NULL),
+    ((SELECT id_adhérent FROM adhérents WHERE adhérents.nom = 'Mary Shelley'),
+    (SELECT isbn FROM livres WHERE livres.titre = 'David Copperfield'),
+    CURRENT_DATE()+2, NULL);
+
+INSERT INTO emprunts(id_adhérent, isbn, date_emprunt, date_retour) VALUES
+    ((SELECT id_adhérent FROM adhérents WHERE adhérents.nom = 'Jane Austen'),
+    (SELECT isbn FROM livres WHERE livres.titre = 'Frankenstein'),
+    CURRENT_DATE()+3, NULL),
+    ((SELECT id_adhérent FROM adhérents WHERE adhérents.nom = 'Charles Dickens'),
+    (SELECT isbn FROM livres WHERE livres.titre = 'Orgueil et Préjugés'),
+    CURRENT_DATE()+3, NULL),
+    ((SELECT id_adhérent FROM adhérents WHERE adhérents.nom = 'Jules Vernes'),
+    (SELECT isbn FROM livres WHERE livres.titre = 'David Copperfield'),
+    CURRENT_DATE()+3, NULL),
+    ((SELECT id_adhérent FROM adhérents WHERE adhérents.nom = 'Mary Shelley'),
+    (SELECT isbn FROM livres WHERE livres.titre = 'Vingt mille lieues sous les mers'),
+    CURRENT_DATE()+3, NULL);
 
 -- 4. Charles Dickens déménage, mettez à jour son adresse dans la base de données.
 UPDATE TABLE adhérents SET adresse = 'Deutschland' WHERE nom = 'Charles Dickens';
