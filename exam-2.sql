@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS emprunts(
     isbn INT NOT NULL,
     FOREIGN KEY (isbn) REFERENCES livres(isbn),
     date_emprunt DATE NOT NULL,
-    date_retour DATE NOT NULL
+    date_retour DATE DEFAULT NULL
 );
 
 -- 2. Créer un utilisateur « bibliothecaire » avec le mot de passe « secret » ayant accès uniquement à cette base de données bibliotheque avec tous les droits.
@@ -59,9 +59,30 @@ INSERT INTO emprunts(id_adhérent, isbn, date_emprunt, date_retour) VALUES
     ((SELECT id_adhérent FROM adhérents WHERE adhérents.nom = 'Mary Shelley'),
     (SELECT isbn FROM livres WHERE livres.titre = 'Orgueil et Préjugés'),
     CURRENT_DATE(), CURRENT_DATE() + 30);
--- 4. Charles Dickens déménage, mettez à jour son adresse dans la base de données. 
+
+-- 4. Charles Dickens déménage, mettez à jour son adresse dans la base de données.
+UPDATE TABLE adhérents SET adresse = 'Deutschland' WHERE nom = 'Charles Dickens';
+
 -- 5. Un livre est empruntable 30 jours, faites une vue qui affiche les personnes qui ont des livres en retard et les livres en question
+CREATE VIEW retards_emprunts AS (
+    SELECT adhérents.*, livres.* FROM adhérents
+    JOIN emprunts
+    ON emprunts.id_adhérent = adhérents.id_adhérent
+    JOIN livres
+    ON emprunts.isbn = livres.isbn
+    WHERE emprunts.date_retour - emprunts.date_emprunt > 30    
+    );
+
 -- 6. Créer un trigger qui passe le booléen « disponible » à true si la date de retour d’un livre est précisée
+DELIMITER //
+CREATE TRIGGER livre_dispo AFTER UPDATE ON livres
+FOR EACH ROW BEGIN
+    IF (NEW.date_retour != NULL) THEN
+        UPDATE TABLE livres SET livres.disponible = TRUE WHERE livres.isbn = NEW.isbn;
+    END IF;
+END //
+DELIMITER ;
+
 -- 7. Créer une procédure stockée qui passe le booléen « a_surveiller » à true si une personne a un retard de plus de 30 jours
 -- 8. Mary Shelley arrête son adhésion à la bibliothèque, supprimez son enregistrement de la base de données.
 -- 9. Sur quel(s) champ(s) pourrait-on mettre un index pour optimiser les requêtes et pourquoi ?
