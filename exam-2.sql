@@ -84,6 +84,20 @@ END //
 DELIMITER ;
 
 -- 7. Créer une procédure stockée qui passe le booléen « a_surveiller » à true si une personne a un retard de plus de 30 jours
+DELIMITER //
+CREATE PROCEDURE surv_adh()
+BEGIN
+    UPDATE TABLE adhérents SET adhérents.a_surveiller = TRUE WHERE (adhérents.id_adhérent = (SELECT adhérents.id from retards_emprunts));
+END //
+DELIMITER ;
+
 -- 8. Mary Shelley arrête son adhésion à la bibliothèque, supprimez son enregistrement de la base de données.
+DELETE FROM adhérents WHERE adhérents.nom = 'Mary Shelley';
+
 -- 9. Sur quel(s) champ(s) pourrait-on mettre un index pour optimiser les requêtes et pourquoi ?
+/*
+    Un Index sur les dates de retour dans la table emprunt car le champ sera beaucoup solocité pour rechercher des retardataires.
+    De même sur le champ disponible dans la table livres pour savoir si un livre est en réserve ou non.
+*/
+
 -- 10. La bibliothèque doit se conformer à la RGPD. Quelle requête SQL utiliseriez-vous pour anonymiser la base de données? pour supprimer toute la base de données ?
