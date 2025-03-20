@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS emprunts(
 
 -- 2. Créer un utilisateur « bibliothecaire » avec le mot de passe « secret » ayant accès uniquement à cette base de données bibliotheque avec tous les droits.
 CREATE USER IF NOT EXISTS 'bibliothecaire'@'localhost';
-ALTER USER bibliothecaire IDENTIFIED BY 'secret';
+ALTER USER 'bibliothecaire'@'localhost' IDENTIFIED BY 'secret';
 
 /* 3. Ajouter les adhérents : Jane Austen, Charles Dickens, Jules Verne, Mary Shelley. 
 Ajouter les livres : "Orgueil et Préjugés", "David Copperfield", "Vingt mille lieues sous les mers", "Frankenstein".
@@ -41,10 +41,10 @@ INSERT INTO adhérents(nom, adresse, date_inscription, a_surveiller) VALUES
     ('Mary Shelley', 'Londres', '1797-08-30', FALSE);
 
 INSERT INTO livres (titre, auteur, année_publication, disponible) VALUES
-    ('Orgueil et Préjugés', 'Jane Austen', '1813-01-28', TRUE),
-    ('David Copperfield', 'Charles Dickens', '1850-11-01', TRUE),
-    ('Vingt mille lieues sous les mers', 'Jules Vernes', '1870-06-20', TRUE),
-    ('Frankenstein', 'Mary Shelley', '1818-01-01', TRUE);
+    ('Orgueil et Préjugés', 'Jane Austen', '1813', TRUE),
+    ('David Copperfield', 'Charles Dickens', '1850', TRUE),
+    ('Vingt mille lieues sous les mers', 'Jules Vernes', '1870', TRUE),
+    ('Frankenstein', 'Mary Shelley', '1818', TRUE);
 
 INSERT INTO emprunts(id_adhérent, isbn, date_emprunt, date_retour) VALUES
     ((SELECT id_adhérent FROM adhérents WHERE adhérents.nom = 'Jane Austen'),
@@ -103,7 +103,7 @@ INSERT INTO emprunts(id_adhérent, isbn, date_emprunt, date_retour) VALUES
     CURRENT_DATE()+3, NULL);
 
 -- 4. Charles Dickens déménage, mettez à jour son adresse dans la base de données.
-UPDATE TABLE adhérents SET adresse = 'Deutschland' WHERE nom = 'Charles Dickens';
+UPDATE adhérents SET adresse = 'Deutschland' WHERE nom = 'Charles Dickens' AND adhérents.id_adhérent > 0; --MySQL SafeMode forces WHERE Clause with an ID
 
 -- 5. Un livre est empruntable 30 jours, faites une vue qui affiche les personnes qui ont des livres en retard et les livres en question
 CREATE VIEW retards_emprunts AS (
@@ -117,10 +117,10 @@ CREATE VIEW retards_emprunts AS (
 
 -- 6. Créer un trigger qui passe le booléen « disponible » à true si la date de retour d’un livre est précisée
 DELIMITER //
-CREATE TRIGGER livre_dispo AFTER UPDATE ON livres
+CREATE TRIGGER livre_dispo AFTER UPDATE ON emprunts
 FOR EACH ROW BEGIN
-    IF (NEW.date_retour != NULL) THEN
-        UPDATE TABLE livres SET livres.disponible = TRUE WHERE livres.isbn = NEW.isbn;
+    IF (NEW.date_retour != OLD.date_retour AND IS NOT NULL) THEN
+        UPDATE livres SET livres.disponible = TRUE WHERE livres.isbn = NEW.isbn;
     END IF;
 END //
 DELIMITER ;
@@ -129,7 +129,7 @@ DELIMITER ;
 DELIMITER //
 CREATE PROCEDURE surv_adh()
 BEGIN
-    UPDATE TABLE adhérents SET adhérents.a_surveiller = TRUE WHERE (adhérents.id_adhérent = (SELECT adhérents.id from retards_emprunts));
+    UPDATE adhérents SET adhérents.a_surveiller = TRUE WHERE (adhérents.id_adhérent = (SELECT adhérents.id from retards_emprunts));
 END //
 DELIMITER ;
 
